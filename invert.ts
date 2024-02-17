@@ -1,24 +1,54 @@
 import fs from 'node:fs'
 
-type Vec = [number, number]
+/**
+ * Define a vector in 2D (seems useless but very usefull for reading the code)
+ */
+type Vector = [number, number]
 
-type Eigen = {
-    S1: Vec,
-    S3: Vec
+/**
+ * The two eigen vectors from a 2-dimensional stress state
+ */
+type EigenVectors = {
+    S1: Vector,
+    S3: Vector
 }
 
+/**
+ * The prefix 'I' stands for Interface.
+ */
 interface IData {
-    get normal(): Vec
-    cost(eigen: Eigen): number
-    predict(eigen: Eigen): Vec
+    /**
+     * The normal that characterize the data geometry
+     */
+    get normal(): Vector
+
+    /**
+     * Given a stress state, tells if this data is more or less well oriented
+     */
+    cost(eigen: EigenVectors): number
+
+    /**
+     * Given a stress state, gives the best oriention (for this data) that fit this stress state
+     */
+    predict(eigen: EigenVectors): Vector
+
+    /**
+     * The name of this data (e.g., 'joint', 'stylolite', 'conjugate')
+     */
     name(): string
 }
 
+/**
+ * The interface that must follow a solver for performing stress inversion
+ */
 interface ISolver {
     addData(filename: string, dataType: string): void
     run(n: number): void
 }
 
+/**
+ * A design pattern...
+ */
 class SolverFactory {
     static solverMap_: Map<string, any> = new Map()
 
@@ -61,16 +91,29 @@ class DataFactory {
 
 // ----------------------------------------------------------
 
-function normalize(n: Vec): Vec {
+/**
+ * Normamlize a 2-dimensional (2D) vector
+ */
+function normalize(n: Vector): Vector {
     const l = Math.sqrt(n[0] ** 2 + n[1] ** 2)
     return [n[0] / l, n[1] / l]
 }
 
-const dot = (n1: Vec, n2: Vec): number => n1[0] * n2[0] + n1[1] * n2[1]
+/**
+ * Perform the dot product in 2D
+ */
+const dot = (n1: Vector, n2: Vector): number => n1[0] * n2[0] + n1[1] * n2[1]
 
+/**
+ * Perform a linear interpolation between v0 and v1 using t∊[0,1].
+ * For t=0, the returned value is v0, and for t=1 the returned value is v1.
+ */
 const lerp = (v0: number, v1: number, t: number): number => (1 - t) * v0 + t * v1
 
-function remoteStress(theta: number, k: number): Eigen {
+/**
+ * Given (Θ, k), return the two principal directions, σ1 and σ3.
+ */
+function remoteStress(theta: number, k: number): EigenVectors {
     const a = theta * Math.PI / 180.0
     const c = Math.cos(a)
     const s = Math.sin(a)
@@ -89,15 +132,15 @@ function remoteStress(theta: number, k: number): Eigen {
 // ----------------------------------------------------------
 
 class Joint implements IData {
-    constructor(private n_: Vec) {
+    constructor(private n_: Vector) {
     }
-    get normal(): Vec {
+    get normal(): Vector {
         return this.n_
     }
-    cost(eigen: Eigen): number {
+    cost(eigen: EigenVectors): number {
         return 1.0 - Math.abs(dot(this.n_, eigen.S1))
     }
-    predict(eigen: Eigen): Vec {
+    predict(eigen: EigenVectors): Vector {
         return eigen.S1
     }
     name(): string {
@@ -107,15 +150,15 @@ class Joint implements IData {
 DataFactory.bind('joint', Joint )
 
 class Stylolite implements IData {
-    constructor(private n_: Vec) {
+    constructor(private n_: Vector) {
     }
-    get normal(): Vec {
+    get normal(): Vector {
         return this.n_
     }
-    cost(eigen: Eigen): number {
+    cost(eigen: EigenVectors): number {
         return 1.0 - Math.abs(dot(this.n_, eigen.S3))
     }
-    predict(eigen: Eigen): Vec {
+    predict(eigen: EigenVectors): Vector {
         return eigen.S3
     }
     name(): string {
@@ -126,6 +169,11 @@ DataFactory.bind('stylo', Stylolite )
 
 // ----------------------------------------------------------
 
+/**
+ * First implementation of the ISolver interface. This class
+ * is still abstract meaning that some (or all) of the methods
+ * are not implemented, meaning that we cannot instanciate this class.
+ */
 abstract class Solver implements ISolver {
     protected data: Data[] = []
 
@@ -144,6 +192,10 @@ abstract class Solver implements ISolver {
     }
 }
 
+/**
+ * This is a concrete implementation of Solver class. This class implements ALL
+ * of the methods, meaning that we can use it (YES!, finally).
+ */
 class MonteCarlo extends Solver {
     run(n = 5000): void {
         let theta = 0
@@ -165,6 +217,9 @@ class MonteCarlo extends Solver {
 }
 SolverFactory.bind('mc', MonteCarlo)
 
+/**
+ * Same as for the MonteCarlo class, we can use it :-)
+ */
 class Regular extends Solver {
     run(n = 50): void {
         let theta = 0
@@ -189,24 +244,6 @@ class Regular extends Solver {
 SolverFactory.bind('regular', Regular)
 
 // ----------------------------------------------------------
-
-// Extra
-function generateDomain(data: Data[], n: number): number[] {
-    const z = new Array(n*n).fill(0)
-    let l = 0
-    for (let i = 0; i < n; ++i) {
-        const k = lerp(0, 1, i/(n-1))
-        for (let j = 0; j < n; ++j) {
-            const theta = lerp(0, 180, j/(n-1))
-            const remote = remoteStress(theta, k)
-            z[l++] = data.reduce((c, d) => c + d.cost(remote), 0) / data.length
-        }
-    }
-
-    return z
-}
-
-// ----------------------------------------------------------
 //                          R U N
 // ----------------------------------------------------------
 
@@ -216,5 +253,3 @@ if (solver) {
     solver.addData("matelles-stylolites.txt", "stylo")
     solver.run()
 }
-
-// const domain = generateDomain(solver.data, 50)

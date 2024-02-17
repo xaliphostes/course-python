@@ -15,8 +15,7 @@ python3 invert.py
 ```sh
 node invert.js
 ```
-- In TypeScript (using deno)
-Info: Deno will ask you the permission to read the two files from your folder.
+- In TypeScript (using deno). Deno will ask you the permission to read the two files from your folder.
 ```sh
 deno run invert.ts
 ```

@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+// import { Datas, Deplot, Plotly } from 'https://deno.land/x/deplot/mod.ts'
 
 type Vec = [number, number]
 
@@ -9,27 +10,53 @@ type Eigen = {
 
 type CostFunction = (n: Vec, eigen: Eigen) => number
 
-type Data = {
-    n: Vec,
-    cost: CostFunction
+interface IData {
+    get normal(): Vec
+    cost(eigen: Eigen): number
+    predict(eigen: Eigen): Vec
+    name(): string
 }
 
 interface ISolver {
-    addData(filename: string, costFunction: string): void
+    addData(filename: string, dataType: string): void
     run(n: number): void
 }
 
+const solverMap_: Map<string, any> = new Map()
 class SolverFactory {
     static bind(name: string = '', obj: any): void {
-        name.length === 0 ? map_.set(obj.name, obj) : map_.set(name, obj)
+        name.length === 0 ? solverMap_.set(obj.name, obj) : solverMap_.set(name, obj)
     }
 
     static create(name: string, params: any = undefined): ISolver {
-        const M = map_.get(name)
+        const M = solverMap_.get(name)
         if (M) {
             return new M(params)
         }
         return undefined
+    }
+
+    static has(name: string): boolean {
+        return solverMap_.has(name)
+    }
+}
+
+const dataMap_: Map<string, any> = new Map()
+class DataFactory {
+    static bind(name: string = '', obj: any): void {
+        name.length === 0 ? dataMap_.set(obj.name, obj) : dataMap_.set(name, obj)
+    }
+
+    static create(name: string, params: any = undefined): IData {
+        const M = dataMap_.get(name)
+        if (M) {
+            return new M(params)
+        }
+        return undefined
+    }
+
+    static has(name: string): boolean {
+        return dataMap_.has(name)
     }
 }
 
@@ -60,37 +87,57 @@ function remoteStress(theta: number, k: number): Eigen {
     }
 }
 
-const dataMap: Map<string, CostFunction> = new Map()
-class DataFactory {
-    static bind(name: string, cost: CostFunction) {
-        dataMap.set(name, cost)
-    }
+// ----------------------------------------------------------
 
-    static resolve(name: string): CostFunction | undefined {
-        if (dataMap.has(name)) {
-            return dataMap.get(name)
-        }
-        return undefined
+class Joint implements IData {
+    constructor(private n_: Vec) {
+    }
+    get normal(): Vec {
+        return this.n_
+    }
+    cost(eigen: Eigen): number {
+        return 1.0 - Math.abs(dot(this.n_, eigen.S1))
+    }
+    predict(eigen: Eigen): Vec {
+        return eigen.S1
+    }
+    name(): string {
+        return 'joint'
     }
 }
+DataFactory.bind('joint', Joint )
 
-DataFactory.bind('joint', (n: Vec, eigen: Eigen) => 1.0 - Math.abs(dot(n, eigen.S1)) )
-DataFactory.bind('stylo', (n: Vec, eigen: Eigen) => 1.0 - Math.abs(dot(n, eigen.S3)) )
+class Stylolite implements IData {
+    constructor(private n_: Vec) {
+    }
+    get normal(): Vec {
+        return this.n_
+    }
+    cost(eigen: Eigen): number {
+        return 1.0 - Math.abs(dot(this.n_, eigen.S3))
+    }
+    predict(eigen: Eigen): Vec {
+        return eigen.S3
+    }
+    name(): string {
+        return 'stylolite'
+    }
+}
+DataFactory.bind('stylo', Stylolite )
 
-const map_: Map<string, any> = new Map()
+// ----------------------------------------------------------
 
 abstract class Solver implements ISolver {
     protected data: Data[] = []
 
     abstract run(n: number): void
 
-    addData(filename: string, costFunction: string): void {
-        const costFct = DataFactory.resolve(costFunction)
-        if (costFct !== undefined) {
-            fs.readFileSync(filename, 'utf8').split('\n').forEach((line: string) => this.data.push({
-                n: line.split(' ').map(v => parseFloat(v)) as Vec,
-                cost: costFct
-            }))
+    addData(filename: string, dataType: string): void {
+        if ( DataFactory.has(dataType)) {
+            fs.readFileSync(filename, 'utf8').split('\n').forEach((line: string) => {
+                const n = line.split(' ').map(v => parseFloat(v))
+                this.data.push(DataFactory.create(dataType, n))
+            })
         }
         else {
             throw `Cost function named ${costFunction} does not exist`
@@ -107,7 +154,7 @@ class MonteCarlo extends Solver {
             const THETA = lerp(0, 180, Math.random())
             const K = lerp(0, 1, Math.random())
             const remote = remoteStress(THETA, K)
-            const c = this.data.reduce((c, d) => c + d.cost(d.n, remote), 0) / this.data.length
+            const c = this.data.reduce((c, d) => c + d.cost(remote), 0) / this.data.length
             if (c < cost) {
                 cost = c
                 theta = THETA
@@ -150,14 +197,14 @@ function generateDomain(data: Data[], n: number): number[] {
         for (let j = 0; j < n; ++j) {
             const theta = lerp(0, 180, j/(n-1))
             const remote = remoteStress(theta, k)
-            z[l++] = data.reduce((c, d) => c + d.cost(d.n, remote), 0) / data.length
+            z[l++] = data.reduce((c, d) => c + d.cost(remote), 0) / data.length
         }
     }
 
     return z
 }
 
-// -------------------------------------------
+// ----------------------------------------------------------
 
 const solver = SolverFactory.create('mc')
 if (solver) {
@@ -166,4 +213,43 @@ if (solver) {
     solver.run()
 }
 
-const domain = generateDomain(solver.data, 50)
+// const domain = generateDomain(solver.data, 50)
+
+// -------------------------------------------------------------------------------
+
+/*
+const barPlot = new Deplot(
+    'Plotly',
+    {
+        title: 'My bar plot',
+        size: { width: 800, height: 600 },
+    },
+)
+
+const trace: Plotly.Data = {
+    x: ['Zebras', 'Lions', 'Pelicans'],
+    y: [90, 40, 60],
+    type: 'bar',
+    name: 'New York Zoo',
+}
+
+const layout: Partial<Plotly.Layout> = {
+    title: 'Hide the Modebar',
+    showlegend: true,
+}
+
+const datas: Datas = { data: [trace], layout, config: { editable: true } }
+
+await barPlot.plot(datas)
+
+const trace2: Plotly.Data = {
+    x: [1, 2, 3, 4, 5],
+    y: [4, 0, 4, 6, 8],
+    mode: 'lines+markers',
+    type: 'scatter',
+}
+
+const datas2 = { data: [trace2], layout }
+
+new Deplot('Plotly').plot(datas)
+*/

@@ -91,4 +91,4 @@ def addData(file: str, costFct: Callable):
 addData("matelles-joints.txt", costJoint)
 addData("matelles-stylolites.txt", costStylo)
 mc(data, 10000)
-# plot(data, 50)
+plot(data, 50)

@@ -1,7 +1,4 @@
-// const fs = require('fs')
 import fs from 'node:fs'
-
-// ----------------------------------------------------------
 
 type Vec = [number, number]
 
@@ -145,6 +142,21 @@ class Regular extends Solver {
 }
 SolverFactory.bind('regular', Regular)
 
+function generateDomain(data: Data[], n: number): number[] {
+    const z = new Array(n*n).fill(0)
+    let l = 0
+    for (let i = 0; i < n; ++i) {
+        const k = lerp(0, 1, i/(n-1))
+        for (let j = 0; j < n; ++j) {
+            const theta = lerp(0, 180, j/(n-1))
+            const remote = remoteStress(theta, k)
+            z[l++] = data.reduce((c, d) => c + d.cost(d.n, remote), 0) / data.length
+        }
+    }
+
+    return z
+}
+
 // -------------------------------------------
 
 const solver = SolverFactory.create('regular')
@@ -153,3 +165,5 @@ if (solver) {
     solver.addData("matelles-stylolites.txt", "stylo")
     solver.run()
 }
+
+const domain = generateDomain(solver.data, 50)

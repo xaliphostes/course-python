@@ -25,7 +25,8 @@ deno run invert.ts
 The JavaScript code is embedded into a index.html file allowing the representation of the cost domain.
 This file includes not only the code, but also the data form Les Matelles.
 
-Simply double-click on `index.html` to display the cost domain.
+Simply double-click on `index.html` to display the cost domain, or <a href="https://xaliphostes.github.io/course-stress-inv-3/"><b>click here</b></a>
+        
 
 <br><br><br><br><br>
 

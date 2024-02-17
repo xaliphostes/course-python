@@ -1,5 +1,4 @@
 import fs from 'node:fs'
-// import { Datas, Deplot, Plotly } from 'https://deno.land/x/deplot/mod.ts'
 
 type Vec = [number, number]
 
@@ -7,8 +6,6 @@ type Eigen = {
     S1: Vec,
     S3: Vec
 }
-
-type CostFunction = (n: Vec, eigen: Eigen) => number
 
 interface IData {
     get normal(): Vec
@@ -140,7 +137,7 @@ abstract class Solver implements ISolver {
             })
         }
         else {
-            throw `Cost function named ${costFunction} does not exist`
+            throw `No Data type named ${dataType}!`
         }
     }
 }
@@ -205,6 +202,8 @@ function generateDomain(data: Data[], n: number): number[] {
 }
 
 // ----------------------------------------------------------
+//                          R U N
+// ----------------------------------------------------------
 
 const solver = SolverFactory.create('mc')
 if (solver) {
@@ -214,42 +213,3 @@ if (solver) {
 }
 
 // const domain = generateDomain(solver.data, 50)
-
-// -------------------------------------------------------------------------------
-
-/*
-const barPlot = new Deplot(
-    'Plotly',
-    {
-        title: 'My bar plot',
-        size: { width: 800, height: 600 },
-    },
-)
-
-const trace: Plotly.Data = {
-    x: ['Zebras', 'Lions', 'Pelicans'],
-    y: [90, 40, 60],
-    type: 'bar',
-    name: 'New York Zoo',
-}
-
-const layout: Partial<Plotly.Layout> = {
-    title: 'Hide the Modebar',
-    showlegend: true,
-}
-
-const datas: Datas = { data: [trace], layout, config: { editable: true } }
-
-await barPlot.plot(datas)
-
-const trace2: Plotly.Data = {
-    x: [1, 2, 3, 4, 5],
-    y: [4, 0, 4, 6, 8],
-    mode: 'lines+markers',
-    type: 'scatter',
-}
-
-const datas2 = { data: [trace2], layout }
-
-new Deplot('Plotly').plot(datas)
-*/

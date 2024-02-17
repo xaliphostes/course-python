@@ -159,7 +159,7 @@ function generateDomain(data: Data[], n: number): number[] {
 
 // -------------------------------------------
 
-const solver = SolverFactory.create('regular')
+const solver = SolverFactory.create('mc')
 if (solver) {
     solver.addData("matelles-joints.txt", "joint")
     solver.addData("matelles-stylolites.txt", "stylo")

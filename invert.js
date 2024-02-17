@@ -47,6 +47,21 @@ function mc(data, n) {
     }
 }
 
+function generateDomain(data, n) {
+    const z = new Array(n*n).fill(0)
+    let l = 0
+    for (let i = 0; i < n; ++i) {
+        const k = lerp(0, 1, i/(n-1))
+        for (let j = 0; j < n; ++j) {
+            const theta = lerp(0, 180, j/(n-1))
+            const remote = remoteStress(theta, k)
+            z[l++] = data.reduce((c, d) => c + d.cost(d.n, remote), 0) / data.length
+        }
+    }
+
+    return z
+}
+
 // -------------------------------------------
 
 const data = []
@@ -61,3 +76,5 @@ function addData(file, fct) {
 addData("matelles-joints.txt", costJoint)
 addData("matelles-stylolites.txt", costStylo)
 mc(data, 10000)
+
+generateDomain(data, 50)

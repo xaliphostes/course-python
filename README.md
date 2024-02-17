@@ -22,10 +22,12 @@ deno run invert.ts
 ```
 
 ## Running in the browser
-The JavaScript code is embedded into a index.html file allowing the representation of the cost domain.
-This file includes not only the code, but also the data form Les Matelles.
+The index.html file embeds JavaScript code to represent the cost domain,
+including both the code and data from Les Matelles.
 
-Simply double-click on `index.html` to display the cost domain, or <a href="https://xaliphostes.github.io/course-stress-inv-3/"><b>click here</b></a>
+Simply double-click on `index.html` to display the cost domain, or <a href="https://xaliphostes.github.io/course-stress-inv-3/"><b>click here</b></a> to directly run the code.
+
+<button name="button" onclick="https://xaliphostes.github.io/course-stress-inv-3/">Run me</button>
         
 
 <br><br><br><br><br>

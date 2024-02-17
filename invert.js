@@ -26,40 +26,18 @@ function remoteStress(theta, k) {
 }
 
 const costJoint = (n, eigen) => 1.0 - Math.abs(dot(n, eigen.S1))
-
 const costStylo = (n, eigen) => 1.0 - Math.abs(dot(n, eigen.S3))
 
 function mc(data, n) {
-    let theta = 0
-    let k = 0
-    let cost = Number.POSITIVE_INFINITY
+    let theta = 0, k = 0, cost = Number.POSITIVE_INFINITY
     for (let i=0; i<n; ++i) {
-        const THETA = lerp(0, 180, Math.random())
-        const K = lerp(0, 1, Math.random())
-        const remote = remoteStress(THETA, K)
+        const THETA = lerp(0, 180, Math.random()), K = lerp(0, 1, Math.random()), remote = remoteStress(THETA, K)
         const c = data.reduce( (c, d) => c + d.cost(d.n, remote), 0) / data.length
         if (c < cost) {
-            cost = c
-            theta = THETA
-            k = K
+            cost = c; theta = THETA; k = K
             console.log(theta, k, c)
         }
     }
-}
-
-function generateDomain(data, n) {
-    const z = new Array(n*n).fill(0)
-    let l = 0
-    for (let i = 0; i < n; ++i) {
-        const k = lerp(0, 1, i/(n-1))
-        for (let j = 0; j < n; ++j) {
-            const theta = lerp(0, 180, j/(n-1))
-            const remote = remoteStress(theta, k)
-            z[l++] = data.reduce((c, d) => c + d.cost(d.n, remote), 0) / data.length
-        }
-    }
-
-    return z
 }
 
 // -------------------------------------------
@@ -76,5 +54,3 @@ function addData(file, fct) {
 addData("matelles-joints.txt", costJoint)
 addData("matelles-stylolites.txt", costStylo)
 mc(data, 10000)
-
-generateDomain(data, 50)

@@ -19,14 +19,15 @@ interface ISolver {
     run(n: number): void
 }
 
-const solverMap_: Map<string, any> = new Map()
 class SolverFactory {
+    static solverMap_: Map<string, any> = new Map()
+
     static bind(name: string = '', obj: any): void {
-        name.length === 0 ? solverMap_.set(obj.name, obj) : solverMap_.set(name, obj)
+        name.length === 0 ? SolverFactory.solverMap_.set(obj.name, obj) : SolverFactory.solverMap_.set(name, obj)
     }
 
     static create(name: string, params: any = undefined): ISolver {
-        const M = solverMap_.get(name)
+        const M = SolverFactory.solverMap_.get(name)
         if (M) {
             return new M(params)
         }
@@ -34,18 +35,19 @@ class SolverFactory {
     }
 
     static has(name: string): boolean {
-        return solverMap_.has(name)
+        return SolverFactory.solverMap_.has(name)
     }
 }
 
-const dataMap_: Map<string, any> = new Map()
 class DataFactory {
+    static dataMap_: Map<string, any> = new Map()
+
     static bind(name: string = '', obj: any): void {
-        name.length === 0 ? dataMap_.set(obj.name, obj) : dataMap_.set(name, obj)
+        name.length === 0 ? DataFactory.dataMap_.set(obj.name, obj) : DataFactory.dataMap_.set(name, obj)
     }
 
     static create(name: string, params: any = undefined): IData {
-        const M = dataMap_.get(name)
+        const M = DataFactory.dataMap_.get(name)
         if (M) {
             return new M(params)
         }
@@ -53,7 +55,7 @@ class DataFactory {
     }
 
     static has(name: string): boolean {
-        return dataMap_.has(name)
+        return DataFactory.dataMap_.has(name)
     }
 }
 
@@ -186,6 +188,9 @@ class Regular extends Solver {
 }
 SolverFactory.bind('regular', Regular)
 
+// ----------------------------------------------------------
+
+// Extra
 function generateDomain(data: Data[], n: number): number[] {
     const z = new Array(n*n).fill(0)
     let l = 0

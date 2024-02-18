@@ -8,7 +8,7 @@ type Vector = [number, number]
 /**
  * The two eigen vectors from a 2-dimensional stress state
  */
-type EigenVectors = {
+type PrincipalDirections = {
     S1: Vector,
     S3: Vector
 }
@@ -25,12 +25,12 @@ interface IData {
     /**
      * Given a stress state, tells if this data is more or less well oriented
      */
-    cost(eigen: EigenVectors): number
+    cost(eigen: PrincipalDirections): number
 
     /**
      * Given a stress state, gives the best oriention (for this data) that fit this stress state
      */
-    predict(eigen: EigenVectors): Vector
+    predict(eigen: PrincipalDirections): Vector
 
     /**
      * The name of this data (e.g., 'joint', 'stylolite', 'conjugate')
@@ -113,7 +113,7 @@ const lerp = (v0: number, v1: number, t: number): number => (1 - t) * v0 + t * v
 /**
  * Given (Θ, k), return the two principal directions, σ1 and σ3.
  */
-function remoteStress(theta: number, k: number): EigenVectors {
+function remoteStress(theta: number, k: number): PrincipalDirections {
     const a = theta * Math.PI / 180.0
     const c = Math.cos(a)
     const s = Math.sin(a)
@@ -137,10 +137,10 @@ class Joint implements IData {
     get normal(): Vector {
         return this.n_
     }
-    cost(eigen: EigenVectors): number {
+    cost(eigen: PrincipalDirections): number {
         return 1.0 - Math.abs(dot(this.n_, eigen.S1))
     }
-    predict(eigen: EigenVectors): Vector {
+    predict(eigen: PrincipalDirections): Vector {
         return eigen.S1
     }
     name(): string {
@@ -155,10 +155,10 @@ class Stylolite implements IData {
     get normal(): Vector {
         return this.n_
     }
-    cost(eigen: EigenVectors): number {
+    cost(eigen: PrincipalDirections): number {
         return 1.0 - Math.abs(dot(this.n_, eigen.S3))
     }
-    predict(eigen: EigenVectors): Vector {
+    predict(eigen: PrincipalDirections): Vector {
         return eigen.S3
     }
     name(): string {

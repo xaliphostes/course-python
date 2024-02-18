@@ -7,17 +7,34 @@
 
 
 ## Running
-- In Python
+### In Python
 ```sh
 python3 invert.py
 ```
-- In JavaScript (using node)
+or if you only have python 3 installed:
+```sh
+python invert.py
+```
+
+### In JavaScript (using node)
 ```sh
 node invert.js
 ```
-- In TypeScript (using deno). Deno will ask you the permission to read the two files from your folder.
+
+### In TypeScript (using deno). Deno will ask you the permission to read the two files from your folder.
 ```sh
 deno run invert.ts
+```
+This will prompt you:
+```
+⚠️  Deno requests read access to "matelles-joints.txt".
+├ Requested by `Deno.readFileSync()` API.
+├ Run again with --allow-read to bypass this prompt.
+└ Allow? [y/n/A] (y = yes, allow; n = no, deny; A = allow all read permissions) >
+```
+To bypass this prompt, prefer to use:
+```sh
+deno run --allow-read invert.ts 
 ```
 
 ## Running in the browser

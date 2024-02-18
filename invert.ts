@@ -42,17 +42,43 @@ interface IData {
  * The interface that must follow a solver for performing stress inversion
  */
 interface ISolver {
+    /**
+     * Add a {@link IData} to constrain the inversion
+     */
     addData(filename: string, dataType: string): void
+
+    /**
+     * Run the solver to find the best solution
+     */
     run(n: number): void
 }
 
 /**
- * A design pattern...
+ * A generic factory (Design Pattern)
  */
+class GenericFactory<T> {
+    static map_: Map<string, any> = new Map()
+
+    static register(name: string = '', obj: any): void {
+        name.length === 0 ? GenericFactory.map_.set(obj.name, obj) : GenericFactory.map_.set(name, obj)
+    }
+
+    static create(name: string, params: any = undefined): T {
+        const M = GenericFactory.map_.get(name)
+        if (M) return new M(params)
+        return undefined
+    }
+
+    static has(name: string): boolean {
+        return GenericFactory.map_.has(name)
+    }
+}
+
+/*
 class SolverFactory {
     static solverMap_: Map<string, any> = new Map()
 
-    static bind(name: string = '', obj: any): void {
+    static register(name: string = '', obj: any): void {
         name.length === 0 ? SolverFactory.solverMap_.set(obj.name, obj) : SolverFactory.solverMap_.set(name, obj)
     }
 
@@ -72,7 +98,7 @@ class SolverFactory {
 class DataFactory {
     static dataMap_: Map<string, any> = new Map()
 
-    static bind(name: string = '', obj: any): void {
+    static register(name: string = '', obj: any): void {
         name.length === 0 ? DataFactory.dataMap_.set(obj.name, obj) : DataFactory.dataMap_.set(name, obj)
     }
 
@@ -88,6 +114,7 @@ class DataFactory {
         return DataFactory.dataMap_.has(name)
     }
 }
+*/
 
 // ----------------------------------------------------------
 
@@ -147,7 +174,7 @@ class Joint implements IData {
         return 'joint'
     }
 }
-DataFactory.bind('joint', Joint )
+GenericFactory<IData>.register('joint', Joint )
 
 class Stylolite implements IData {
     constructor(private n_: Vector) {
@@ -165,7 +192,7 @@ class Stylolite implements IData {
         return 'stylolite'
     }
 }
-DataFactory.bind('stylo', Stylolite )
+GenericFactory<IData>.register('stylo', Stylolite )
 
 // ----------------------------------------------------------
 
@@ -180,10 +207,10 @@ abstract class Solver implements ISolver {
     abstract run(n: number): void
 
     addData(filename: string, dataType: string): void {
-        if ( DataFactory.has(dataType)) {
+        if ( GenericFactory<IData>.has(dataType)) {
             fs.readFileSync(filename, 'utf8').split('\n').forEach((line: string) => {
                 const n = line.split(' ').map(v => parseFloat(v))
-                this.data.push(DataFactory.create(dataType, n))
+                this.data.push(GenericFactory<IData>.create(dataType, n))
             })
         }
         else {
@@ -215,7 +242,7 @@ class MonteCarlo extends Solver {
         }
     }
 }
-SolverFactory.bind('mc', MonteCarlo)
+GenericFactory<ISolver>.register('mc', MonteCarlo)
 
 /**
  * Same as for the MonteCarlo class, we can use it :-)
@@ -241,13 +268,13 @@ class Regular extends Solver {
         }
     }
 }
-SolverFactory.bind('regular', Regular)
+GenericFactory<ISolver>.register('regular', Regular)
 
 // ----------------------------------------------------------
 //                          R U N
 // ----------------------------------------------------------
 
-const solver = SolverFactory.create('mc')
+const solver = GenericFactory<ISolver>.create('mc')
 if (solver) {
     solver.addData("matelles-joints.txt", "joint")
     solver.addData("matelles-stylolites.txt", "stylo")

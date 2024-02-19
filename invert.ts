@@ -1,3 +1,13 @@
+/**
+ * Object Oriented and Functional programming in TypeScript
+ * - Use types
+ * - Use class
+ * - Use abstract class and polymorphism
+ * - Use interface
+ * - Use design pattern (factory)
+ * - Use generics (also called generic in python, but template in C++)
+ */
+
 import fs from 'node:fs'
 
 /**
@@ -33,7 +43,7 @@ interface IData {
     predict(eigen: PrincipalDirections): Vector
 
     /**
-     * The name of this data (e.g., 'joint', 'stylolite', 'conjugate')
+     * The name of this data (e.g., 'joint', 'stylo', 'conjugate')
      */
     name(): string
 }
@@ -59,20 +69,36 @@ interface ISolver {
 class GenericFactory<T> {
     static map_: Map<string, any> = new Map()
 
-    static register(name: string = '', obj: any): void {
-        name.length === 0 ? GenericFactory.map_.set(obj.name, obj) : GenericFactory.map_.set(name, obj)
+    static register(name: string, obj: any): void {
+        GenericFactory.map_.set(name, obj)
     }
 
     static create(name: string, params: any = undefined): T {
         const M = GenericFactory.map_.get(name)
-        if (M) return new M(params)
+        if (M) {
+            return new M(params)
+        }
         return undefined
     }
 
     static has(name: string): boolean {
         return GenericFactory.map_.has(name)
     }
+
+    static names() {
+        return Array.from(GenericFactory.map_)
+    }
 }
+
+/**
+ * Using the {@link GenericFactory}, create a specialized class for {@link ISolver}
+ */
+const SolverFactory = GenericFactory<ISolver>
+
+/**
+ * Using the {@link GenericFactory}, create a specialized class for {@link IData}
+ */
+const DataFactory = GenericFactory<IData>
 
 /*
 class SolverFactory {
@@ -119,7 +145,7 @@ class DataFactory {
 // ----------------------------------------------------------
 
 /**
- * Normamlize a 2-dimensional (2D) vector
+ * Normalize a 2-dimensional (2D) vector
  */
 function normalize(n: Vector): Vector {
     const l = Math.sqrt(n[0] ** 2 + n[1] ** 2)
@@ -174,7 +200,6 @@ class Joint implements IData {
         return 'joint'
     }
 }
-GenericFactory<IData>.register('joint', Joint )
 
 class Stylolite implements IData {
     constructor(private n_: Vector) {
@@ -192,7 +217,10 @@ class Stylolite implements IData {
         return 'stylolite'
     }
 }
-GenericFactory<IData>.register('stylo', Stylolite )
+
+DataFactory.register('joint', Joint )
+DataFactory.register('dike' , Joint )
+DataFactory.register('stylo', Stylolite )
 
 // ----------------------------------------------------------
 
@@ -207,10 +235,10 @@ abstract class Solver implements ISolver {
     abstract run(n: number): void
 
     addData(filename: string, dataType: string): void {
-        if ( GenericFactory<IData>.has(dataType)) {
+        if ( DataFactory.has(dataType)) {
             fs.readFileSync(filename, 'utf8').split('\n').forEach((line: string) => {
                 const n = line.split(' ').map(v => parseFloat(v))
-                this.data.push(GenericFactory<IData>.create(dataType, n))
+                this.data.push(DataFactory.create(dataType, n))
             })
         }
         else {
@@ -227,6 +255,7 @@ class MonteCarlo extends Solver {
     run(n = 5000): void {
         let theta = 0
         let k = 0
+        let iter = 0
         let cost = Number.POSITIVE_INFINITY
         for (let i = 0; i < n; ++i) {
             const THETA = lerp(0, 180, Math.random())
@@ -237,12 +266,22 @@ class MonteCarlo extends Solver {
                 cost = c
                 theta = THETA
                 k = K
-                console.log(i, theta, k, c)
+                iter = i
+                console.log('iter =',i, 'theta =', theta, 'k =', k, 'cost =', c)
             }
         }
+
+        // Display the final solution
+        console.log()
+        console.log('Solution:')
+        console.log('  nb data =', this.data.length)
+        console.log('  iter    =', iter, '/', n)
+        console.log('  theta   =', parseInt(theta.toFixed(0)))
+        console.log('  k       =', parseFloat(k.toFixed(3)))
+        console.log('  cost    =', parseFloat(cost.toFixed(3)))
     }
 }
-GenericFactory<ISolver>.register('mc', MonteCarlo)
+SolverFactory.register('mc', MonteCarlo)
 
 /**
  * Same as for the MonteCarlo class, we can use it :-)
@@ -252,29 +291,39 @@ class Regular extends Solver {
         let theta = 0
         let k = 0
         let cost = Number.POSITIVE_INFINITY
+        let iter = 0
         for (let i = 0; i < n; ++i) {
             const K = lerp(0, 1, i/(n-1))
             for (let j = 0; j < n; ++j) {
                 const THETA = lerp(0, 180, j/(n-1))
                 const remote = remoteStress(THETA, K)
-                const c = this.data.reduce((c, d) => c + d.cost(d.n, remote), 0) / this.data.length
+                const c = this.data.reduce((c, d) => c + d.cost(remote), 0) / this.data.length
                 if (c < cost) {
                     cost = c
                     theta = THETA
                     k = K
-                    console.log(i*n+j, theta, k, c)
+                    iter = i * n + j
+                    console.log('iter =',iter, 'theta =', theta, 'k =', k, 'cost =', c)
                 }
             }
         }
+        // Display the final solution
+        console.log()
+        console.log('Solution:')
+        console.log('  nb data =', this.data.length)
+        console.log('  iter    =', iter, '/', n)
+        console.log('  theta   =', parseInt(theta.toFixed(0)))
+        console.log('  k       =', parseFloat(k.toFixed(3)))
+        console.log('  cost    =', parseFloat(cost.toFixed(3)))
     }
 }
-GenericFactory<ISolver>.register('regular', Regular)
+SolverFactory.register('regular', Regular)
 
 // ----------------------------------------------------------
 //                          R U N
 // ----------------------------------------------------------
 
-const solver = GenericFactory<ISolver>.create('mc')
+const solver = SolverFactory.create('mc')
 if (solver) {
     solver.addData("matelles-joints.txt", "joint")
     solver.addData("matelles-stylolites.txt", "stylo")

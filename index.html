@@ -24,9 +24,9 @@
             const a = theta * Math.PI / 180.0
             const c = Math.cos(a)
             const s = Math.sin(a)
-            const xx = k * c * c + s * s
-            const xy = (k - 1) * c * s
-            const yy = k * s * s + c * c
+            const xx = k * s * s
+            const xy = k * c * s
+            const yy = k * c * c
             const trace = xx + yy
             const discri = Math.sqrt(trace * trace - 4 * (xx * yy - xy * xy))
             // Decreasing order according to the eigen values
@@ -36,9 +36,9 @@
             }
         }
 
-        const costJoint = (n, eigen) => 1.0 - Math.abs(dot(n, eigen.S1))
+        const costJoint = (n, eigen) => 1.0 - Math.abs(dot(n, eigen.S3))
 
-        const costStylo = (n, eigen) => 1.0 - Math.abs(dot(n, eigen.S3))
+        const costStylo = (n, eigen) => 1.0 - Math.abs(dot(n, eigen.S1))
 
         function mc(data, n) {
             let theta = 0

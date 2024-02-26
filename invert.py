@@ -34,10 +34,10 @@ class Data:
         self.cost = cost
         self.n = n
 
-def principalDirections(theta, k):
+def principalDirections(theta: float, k: float) -> PrincipalDirections :
     a = theta*math.pi/180.0
     c, s = math.cos(a), math.sin(a)
-    xx, xy, yy = k*c*c + s*s, (k - 1)*c*s, k*s*s + c*c
+    xx, xy, yy = k*s*s, k*c*s, k*c*c
     trace = xx + yy
     discri = math.sqrt(trace*trace - 4*(xx * yy - xy*xy))
     # Decreasing order according to the eigen values
@@ -46,10 +46,10 @@ def principalDirections(theta, k):
     return PrincipalDirections(S1, S3)
         
 def costJoint(n: Tuple[float,float], r: PrincipalDirections) -> float:
-    return 1.0 - math.fabs(dot(n, r.S1))
+    return 1.0 - math.fabs(dot(n, r.S3))
 
 def costStylo(n: Tuple[float,float], r: PrincipalDirections) -> float:
-    return 1.0 - math.fabs(dot(n, r.S3))
+    return 1.0 - math.fabs(dot(n, r.S1))
 
 # Monte Carlo simulation (random)
 def mc(data: List[Data], n: int = 5000):

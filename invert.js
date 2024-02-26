@@ -26,9 +26,9 @@ function principalDirections(theta, k) {
     const a = theta * Math.PI / 180.0
     const c = Math.cos(a)
     const s = Math.sin(a)
-    const xx = k * c * c + s * s
-    const xy = (k - 1) * c * s
-    const yy = k * s * s + c * c
+    const xx = k * s * s
+    const xy = k * c * s
+    const yy = k * c * c
 
     const trace = xx + yy
     const discri = Math.sqrt(trace * trace - 4 * (xx * yy - xy * xy))
@@ -40,11 +40,11 @@ function principalDirections(theta, k) {
 }
 
 function costJoint(n, eigen) {
-    return 1.0 - Math.abs(dot(n, eigen.S1))
+    return 1.0 - Math.abs(dot(n, eigen.S3))
 }
 
 function costStylo(n, eigen) {
-    return 1.0 - Math.abs(dot(n, eigen.S3))
+    return 1.0 - Math.abs(dot(n, eigen.S1))
 }
 
 // Monte Carlo simulation (i.e., random)

@@ -63,44 +63,6 @@ interface ISolver {
     run(n: number): void
 }
 
-/**
- * A generic factory (Design Pattern)
- */
-class GenericFactory<T> {
-    static map_: Map<string, any> = new Map()
-
-    static register(name: string, obj: any): void {
-        GenericFactory.map_.set(name, obj)
-    }
-
-    static create(name: string, params: any = undefined): T {
-        const M = GenericFactory.map_.get(name)
-        if (M) {
-            return new M(params)
-        }
-        return undefined
-    }
-
-    static has(name: string): boolean {
-        return GenericFactory.map_.has(name)
-    }
-
-    static names() {
-        return Array.from(GenericFactory.map_)
-    }
-}
-
-/**
- * Using the {@link GenericFactory}, create a specialized class for {@link ISolver}
- */
-const SolverFactory = GenericFactory<ISolver>
-
-/**
- * Using the {@link GenericFactory}, create a specialized class for {@link IData}
- */
-const DataFactory = GenericFactory<IData>
-
-/*
 class SolverFactory {
     static solverMap_: Map<string, any> = new Map()
 
@@ -113,7 +75,7 @@ class SolverFactory {
         if (M) {
             return new M(params)
         }
-        return undefined
+        throw `no solver named ${name}`
     }
 
     static has(name: string): boolean {
@@ -133,14 +95,13 @@ class DataFactory {
         if (M) {
             return new M(params)
         }
-        return undefined
+        throw `no data named ${name}`
     }
 
     static has(name: string): boolean {
         return DataFactory.dataMap_.has(name)
     }
 }
-*/
 
 // ----------------------------------------------------------
 
@@ -170,9 +131,9 @@ function remoteStress(theta: number, k: number): PrincipalDirections {
     const a = theta * Math.PI / 180.0
     const c = Math.cos(a)
     const s = Math.sin(a)
-    const xx = k * c * c + s * s
-    const xy = (k - 1) * c * s
-    const yy = k * s * s + c * c
+    const xx = k * s * s
+    const xy = k * c * s
+    const yy = k * c * c
     const trace = xx + yy
     const discri = Math.sqrt(trace * trace - 4 * (xx * yy - xy * xy))
     // Decreasing order according to the eigen values
@@ -191,10 +152,10 @@ class Joint implements IData {
         return this.n_
     }
     cost(eigen: PrincipalDirections): number {
-        return 1.0 - Math.abs(dot(this.n_, eigen.S1))
+        return 1.0 - Math.abs(dot(this.n_, eigen.S3))
     }
     predict(eigen: PrincipalDirections): Vector {
-        return eigen.S1
+        return eigen.S3
     }
     name(): string {
         return 'joint'
@@ -208,10 +169,10 @@ class Stylolite implements IData {
         return this.n_
     }
     cost(eigen: PrincipalDirections): number {
-        return 1.0 - Math.abs(dot(this.n_, eigen.S3))
+        return 1.0 - Math.abs(dot(this.n_, eigen.S1))
     }
     predict(eigen: PrincipalDirections): Vector {
-        return eigen.S3
+        return eigen.S1
     }
     name(): string {
         return 'stylolite'
@@ -230,7 +191,7 @@ DataFactory.register('stylo', Stylolite )
  * are not implemented, meaning that we cannot instanciate this class.
  */
 abstract class Solver implements ISolver {
-    protected data: Data[] = []
+    protected data: IData[] = []
 
     abstract run(n: number): void
 
@@ -327,5 +288,5 @@ const solver = SolverFactory.create('mc')
 if (solver) {
     solver.addData("matelles-joints.txt", "joint")
     solver.addData("matelles-stylolites.txt", "stylo")
-    solver.run()
+    solver.run(500000)
 }

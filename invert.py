@@ -23,8 +23,6 @@ def dot(n1: Tuple[float,float], n2: Tuple[float,float]) -> float:
 def lerp(v0: float, v1: float, t: float) -> float :
     return (1 - t) * v0 + t * v1
 
-# PD = NewType(Tuple[float,float], Tuple[float,float])
-
 class PrincipalDirections:
     def __init__(self, S1: Tuple[float,float], S3: Tuple[float,float]) -> None:
         self.S1, self.S3 = S1, S3
@@ -59,7 +57,7 @@ def mc(data: List[Data], n: int = 5000):
     for i in range(0, n):
         THETA, K = lerp(0, 180, rnd.random()), lerp(0, 1, rnd.random())
         remote = principalDirections(THETA, K)
-        c = functools.reduce(lambda a, b: a+b, [x.cost(x.n, remote) for x in data]) / len(data)
+        c = functools.reduce(lambda a, b: a + b, [x.cost(x.n, remote) for x in data]) / len(data)
         if c < cost:
             cost, theta, k = c, THETA, K
             print(theta, k, c)
@@ -94,12 +92,14 @@ data: List[Data] = []
 
 def addData(file: str, costFct: Callable):
     f = open(file, "r")
-    for line in f: # each line
-        toks = line.removesuffix('\n').split(' ')
-        data.append( Data([float(toks[0]), float(toks[1])], costFct) )
+    for line in f: # for each line
+        tokens = line.removesuffix('\n').split(' ')
+        nx = float(tokens[0])
+        ny = float(tokens[1])
+        data.append( Data([nx, ny], costFct) )
 
 addData("matelles-joints.txt", costJoint)
 addData("matelles-stylolites.txt", costStylo)
 mc(data, 10000)
 
-# plot(data, 50)
+plot(data, 50)

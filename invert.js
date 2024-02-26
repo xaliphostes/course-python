@@ -2,7 +2,7 @@
  * PROCEDURAL programming in JavaScript
  */
 
-const fs = require('fs')
+const fs = require('fs') // for reading files
 
 // Normalize a vector
 function normalize(n) {

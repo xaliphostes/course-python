@@ -9,7 +9,7 @@ import random as rnd
 import functools
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Tuple, List, Callable, NewType
+from typing import Tuple, List, Callable
 
 def normalize(n: Tuple[float,float]) -> Tuple[float,float]:
     l = math.sqrt(n[0] ** 2 + n[1] ** 2)

@@ -1,5 +1,5 @@
 /**
- * Object Oriented and Functional programming in TypeScript
+ * OBJECT ORIENTED and FUNCTIONAL programming in TypeScript
  * - Use types
  * - Use class
  * - Use abstract class and polymorphism

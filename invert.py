@@ -1,7 +1,5 @@
 #
 # PROCEDURAL programming in Python
-# - use encapsulation
-# - use also functional programming
 #
  
 import math
@@ -9,33 +7,42 @@ import random as rnd
 import functools
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Tuple, List, Callable
+from typing import Callable
 
-def normalize(n: Tuple[float,float]) -> Tuple[float,float]:
+Vector = tuple[float, float]
+Stress = tuple[tuple[float, float], tuple[float, float]]
+
+def normalize(n: Vector) -> Vector:
     l = math.sqrt(n[0] ** 2 + n[1] ** 2)
     if l != 0:
         return [n[0] / l, n[1] / l]
-    return n
+    else:
+        return n
+    
+def deg2rad(a: float) -> float :
+    return a*math.pi/180
 
-def dot(n1: Tuple[float,float], n2: Tuple[float,float]) -> float:
+def dot(n1: Vector, n2: Vector) -> float:
     return n1[0]*n2[0] + n1[1]*n2[1]
 
 def lerp(v0: float, v1: float, t: float) -> float :
     return (1 - t) * v0 + t * v1
 
 class PrincipalDirections:
-    def __init__(self, S1: Tuple[float,float], S3: Tuple[float,float]) -> None:
+    S1: Vector
+    S3: Vector
+    def __init__(self, S1: Vector, S3: Vector) -> None:
         self.S1, self.S3 = S1, S3
 
 class Data:
     cost: Callable
-    n: Tuple[float,float]
-    def __init__(self, n: Tuple[float,float], cost: Callable) -> None:
+    n: Vector
+    def __init__(self, n: Vector, cost: Callable) -> None:
         self.cost = cost
         self.n = n
 
 def principalDirections(theta: float, k: float) -> PrincipalDirections :
-    a = theta*math.pi/180.0
+    a = deg2rad(theta)
     c, s = math.cos(a), math.sin(a)
     xx, xy, yy = k*s*s, k*c*s, k*c*c
     trace = xx + yy
@@ -45,27 +52,27 @@ def principalDirections(theta: float, k: float) -> PrincipalDirections :
     S3 = normalize([xy, (trace - discri) / 2 - xx])
     return PrincipalDirections(S1, S3)
         
-def costJoint(n: Tuple[float,float], r: PrincipalDirections) -> float:
+def costJoint(n: Vector, r: PrincipalDirections) -> float:
     return 1.0 - math.fabs(dot(n, r.S3))
 
-def costStylo(n: Tuple[float,float], r: PrincipalDirections) -> float:
+def costStylo(n: Vector, r: PrincipalDirections) -> float:
     return 1.0 - math.fabs(dot(n, r.S1))
 
 # Monte Carlo simulation (random)
-def mc(data: List[Data], n: int = 5000):
+def mc(data: list[Data], n: int = 5000):
     cost, theta, k = 1e9, 0, 0
     for i in range(0, n):
         THETA, K = lerp(0, 180, rnd.random()), lerp(0, 1, rnd.random())
         remote = principalDirections(THETA, K)
-        c = functools.reduce(lambda a, b: a + b, [x.cost(x.n, remote) for x in data]) / len(data)
+        c = functools.reduce(lambda a, b: a + b, [x.cost(x.n, remote) for x in data], 0) / len(data)
         if c < cost:
             cost, theta, k = c, THETA, K
             print(theta, k, c)
 
 # Going further, plot the stress domain to check the solution
-def plot(data: List[Data], n: int):
+def plotDomain(data: list[Data], n: int):
     Z = np.zeros(shape=(n,n))
-    min = 0
+    min = 0.001
     max = 0.99
     for i in range(0, n):
         k = lerp(min, max, i/(n-1))
@@ -75,7 +82,7 @@ def plot(data: List[Data], n: int):
             Z[j][i] = functools.reduce(lambda a, b: a+b, [x.cost(x.n, remote) for x in data]) / len(data)
             
     X, Y = np.meshgrid(np.linspace(min, max, n), np.linspace(0, 180, n))
-    levels = np.linspace(Z.min(), Z.max(), 20)
+    levels = np.linspace(Z.min(), Z.max(), 50)
     cmap = 'jet'
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.contourf(np.linspace(min, max, n), np.linspace(0, 180, n), Z, levels=levels, cmap=cmap)
@@ -85,10 +92,41 @@ def plot(data: List[Data], n: int):
     ax.set_title("Domain")
     fig.colorbar(plt.cm.ScalarMappable(cmap=cmap), ax=ax, orientation='vertical', label='Cost')
     plt.show()
-        
+
+def plotRotateS3():
+    x = []
+    
+    yj = []
+    ys = []
+    
+    font = {'family': 'serif',
+        'color':  'darkred',
+        'weight': 'normal',
+        'size': 16,
+        }
+    
+    for angle in range(0, 91, 1):
+        x.append(angle)
+        dirs = principalDirections(angle, 1)
+        yj.append( costJoint([0,1], dirs) )
+        ys.append( costStylo([0,1], dirs) )
+
+    fig, ax = plt.subplots()
+    ax.plot(x, yj, label='Joint')
+    ax.plot(x, ys, label='Stylolite')
+    ax.legend()
+    ax.axvline(x=45, ymax=0.5, linewidth=1, color='black', linestyle=(0, (5, 5)))
+    ax.set_xlim(0, 90)
+    ax.set_ylim(0, 1)
+    # ---
+    plt.title('Cost functions for a vertical fracture', fontdict=font)
+    plt.xlabel('$\sigma_3$ orientation', fontdict=font)
+    plt.ylabel('Cost', fontdict=font)
+    # ---
+    plt.show()
 # -------------------------------------------
 
-data: List[Data] = []
+data: list[Data] = []
 
 def addData(file: str, costFct: Callable):
     f = open(file, "r")
@@ -102,4 +140,5 @@ addData("matelles-joints.txt", costJoint)
 addData("matelles-stylolites.txt", costStylo)
 mc(data, 10000)
 
-plot(data, 50)
+# plotRotateS3()
+plotDomain(data, 50)

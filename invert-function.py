@@ -9,14 +9,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Callable
 
-Vector = tuple[float, float]
-Stress = tuple[tuple[float, float], tuple[float, float]]
+type Vector = list[float]
+type Stress = list[Vector]
 
 
 def normalize(n: Vector) -> Vector:
     l = math.sqrt(n[0] ** 2 + n[1] ** 2)
     if l != 0:
-        return n[0] / l, n[1] / l
+        return [n[0] / l, n[1] / l]
     else:
         return n
 
@@ -57,8 +57,8 @@ def principalDirections(theta: float, k: float) -> PrincipalDirections:
     trace = xx + yy
     discri = math.sqrt(trace * trace - 4 * (xx * yy - xy * xy))
     # Decreasing order according to the eigen values
-    S1 = normalize( (xy, (trace + discri) / 2 - xx) )
-    S3 = normalize( (xy, (trace - discri) / 2 - xx) )
+    S1 = normalize([xy, (trace + discri) / 2 - xx])
+    S3 = normalize([xy, (trace - discri) / 2 - xx])
     return PrincipalDirections(S1, S3)
 
 

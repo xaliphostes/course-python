@@ -39,9 +39,11 @@ class RemoteStress:
     __S1: Vector
     __S3: Vector
 
+    @property
     def S1(self) -> Vector:
         return self.__S1
 
+    @property
     def S3(self) -> Vector:
         return self.__S3
 
@@ -67,20 +69,17 @@ class Data:
     @abstractmethod
     def cost(self, r: RemoteStress) -> float: pass
 
-    def normal(self): return self.n
-    def setNormal(self, n: Vector): self.n = n
-
 
 # Class dérivée de Data
 class Joint(Data):
     def cost(self, r: RemoteStress) -> float:
-        return 1.0 - math.fabs(dot(self.n, r.S3()))
+        return 1.0 - math.fabs(dot(self.n, r.S3))
 
 
 # Class dérivée de Data
 class Stylolite(Data):
     def cost(self, r: RemoteStress) -> float:
-        return 1.0 - math.fabs(dot(self.n, r.S1()))
+        return 1.0 - math.fabs(dot(self.n, r.S1))
 
 # --------------------------------------------------
 

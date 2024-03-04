@@ -1,1 +1,3 @@
-x
+.venv
+.idea
+node_modules

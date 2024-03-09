@@ -129,7 +129,9 @@ def plotRotateS3():
     ax.plot(x, yj, label='Joint')
     ax.plot(x, ys, label='Stylolite')
     ax.legend()
-    ax.axvline(x=45, ymax=0.5, linewidth=1, color='black', linestyle=(0, (5, 5)))
+    px = 1 - math.sqrt(2) / 2
+    ax.axvline(x=45, linewidth=1, color='black', linestyle=(0, (5, 5)))
+    ax.axhline(xmax=45, y=px, linewidth=1, color='black', linestyle=(0, (5, 5)))
     ax.set_xlim(0, 90)
     ax.set_ylim(0, 1)
     # ---
@@ -145,7 +147,6 @@ def plotRotateS3():
 data: list[Data] = []
 
 
-
 def addData(file: str, costFct: Callable):
     f = open(file, "r")
     for line in f:  # for each line
@@ -159,5 +160,5 @@ addData("matelles-joints.txt", costJoint)
 addData("matelles-stylolites.txt", costStylo)
 mc(data, 10000)
 
-# plotRotateS3()
 plotDomain(data, 50)
+plotRotateS3()

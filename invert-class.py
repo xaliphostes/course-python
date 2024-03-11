@@ -83,6 +83,7 @@ class Stylolite(Data):
 
 # --------------------------------------------------
 
+
 # Simulation aléatoire pour trouver la solution
 def monteCarlo(data: list[Data], n: int = 5000):
     """ Monte Carlo simulation (random)

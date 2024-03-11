@@ -2,8 +2,7 @@ from Data import Data
 from DataFactory import create
 from myTypes import Vector
 from MonteCarlo import monteCarlo
-from plotDomain import plotDomain
-from plotCostFunctions import plotCostFunctions
+from plots import plotDomain
 
 
 class Model:
@@ -25,6 +24,3 @@ class Model:
     def plotDomain(self, n: int):
         plotDomain(self.data, n)
 
-    @staticmethod
-    def plotCostFunctions():
-        plotCostFunctions()

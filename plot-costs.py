@@ -1,23 +1,23 @@
 import math
-import random as rnd
-import functools
-import numpy as np
 import matplotlib.pyplot as plt
 
-def deg2rad(a) :
+
+def deg2rad(a):
     return a * math.pi / 180
 
-def normalize(n) :
+
+def normalize(n):
     l = math.sqrt(n[0] ** 2 + n[1] ** 2)
     if l != 0:
         return [n[0] / l, n[1] / l]
     else:
         return n
     
-def dot(n1, n2) :
+def dot(n1, n2):
     return n1[0] * n2[0] + n1[1] * n2[1]
 
-def principalDirections(theta, k) :
+
+def principalDirections(theta, k):
     a = deg2rad(theta)
     c, s = math.cos(a), math.sin(a)
     xx, xy, yy = k * s * s, k * c * s, k * c * c
@@ -28,11 +28,12 @@ def principalDirections(theta, k) :
     S3 = normalize([xy, (trace - discri) / 2 - xx])
     return [S1, S3]
 
-def costJoint(n, r) :
+
+def costJoint(n, r):
     return 1.0 - math.fabs(dot(n, r[1]))
 
 
-def costStylo(n, r) :
+def costStylo(n, r):
     return 1.0 - math.fabs(dot(n, r[0]))
 
 
@@ -69,4 +70,13 @@ def plotRotateS3():
     # ---
     plt.show()
 
-plotRotateS3()
+
+# plotRotateS3()
+
+f = open("matelles-joints.txt", "r")
+for line in f:
+    l = line.removesuffix('\n')
+    print(l)
+
+
+

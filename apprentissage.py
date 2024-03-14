@@ -9,6 +9,8 @@ import math
 a = [1, 2, 3]
 b = True
 
+f = open("/Users/fmaerten/devs/course-stress-inv-3/fake.txt", "w")
+f = open("../../fake.txt", "w")
 f = open("fake.txt", "w")
 f.write('Hello world')
 

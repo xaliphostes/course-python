@@ -148,11 +148,16 @@ data: list[Data] = []
 
 def addData(file: str, costFct: Callable):
     f = open(file, "r")
+    lineNumber = 0
     for line in f:  # for each line
-        tokens = line.removesuffix('\n').split(' ')
+        lineNumber += 1
+        tokens = line.removesuffix('\n').split(' ') # tableau de string
+        if len(tokens) != 2:
+            print(f"error at line {lineNumber}. The number of tokens is not 2 (got {len(tokens)})")
         nx = float(tokens[0])
         ny = float(tokens[1])
         data.append(Data([nx, ny], costFct))
+        
 
 
 addData("matelles-joints.txt", costJoint)

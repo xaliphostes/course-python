@@ -1,5 +1,5 @@
 import math
-import matplotlib.pyplot as plt
+import random as rnd
 
 
 def deg2rad(a):
@@ -25,9 +25,9 @@ def principalDirections(theta, k):
     trace = xx + yy
     discri = math.sqrt(trace * trace - 4 * (xx * yy - xy * xy))
     # Decreasing order according to the eigen values
-    S1 = normalize([xy, (trace + discri) / 2 - xx])
-    S3 = normalize([xy, (trace - discri) / 2 - xx])
-    return [S1, S3]
+    s1 = normalize([xy, (trace + discri) / 2 - xx])
+    s3 = normalize([xy, (trace - discri) / 2 - xx])
+    return [s1, s3]
 
 
 def costJoint(n, r):
@@ -38,49 +38,56 @@ def costStylo(n, r):
     return 1.0 - math.fabs(dot(n, r[0]))
 
 
-def plotRotateS3():
-    x = []
-    yj = []
-    ys = []
-
-    font = {'family': 'serif',
-            'color': 'darkred',
-            'weight': 'normal',
-            'size': 16,
-            }
-
-    for angle in range(0, 91, 1):
-        x.append(angle)
-        dirs = principalDirections(angle, 1)
-        yj.append(costJoint([0, 1], dirs))
-        ys.append(costStylo([0, 1], dirs))
-
-    fig, ax = plt.subplots()
-    ax.plot(x, yj, label='Joint')
-    ax.plot(x, ys, label='Stylolite')
-    ax.legend()
-    px = 1 - math.sqrt(2) / 2
-    ax.axvline(x=45, linewidth=1, color='black', linestyle=(0, (5, 5)))
-    ax.axhline(xmax=45, y=px, linewidth=1, color='black', linestyle=(0, (5, 5)))
-    ax.set_xlim(0, 90)
-    ax.set_ylim(0, 1)
-    # ---
-    plt.title('Cost functions for a vertical fracture', fontdict=font)
-    plt.xlabel('$\sigma_3$ orientation', fontdict=font)
-    plt.ylabel('Cost', fontdict=font)
-    # ---
-    plt.show()
+allData = []
 
 
-def readData(filename):
+def readData(filename, typeOfData):
+    """
+    typeOfData: 0 for Joint, 1 for Stylolite, 2 for Dyke...
+    """
     f = open(filename, "r")
     for line in f:
         tokens = line.split(' ')  # c'est un tableau de str
         nx = float(tokens[0])
         ny = float(tokens[1])
-        print(nx, ny)
+        data = [nx, ny, typeOfData]
+        allData.append(data)
 
 
-readData("matelles-joints.txt")
-readData("matelles-stylolites.txt")
+def monteCarlo(numberOfSimulations):
+    theta = 0
+    ratio = 0
+    cost = 100000
 
+    for i in range(0, numberOfSimulations):
+        t = rnd.uniform(0, 180)
+        k = rnd.uniform(0, 1)
+        dirs = principalDirections(t, k)
+        c = 0
+
+        for fracture in allData:
+            normal = [fracture[0], fracture[1]]
+            fractureType = fracture[2]
+            if fractureType == 0:  # it is a joint
+                c = c + costJoint(normal, dirs)
+            else:
+                c = c + costStylo(normal, dirs)
+        
+        c = c / len(allData)
+        if c < cost:
+            theta = t
+            ratio = k
+            cost = c
+    
+    print('solution: ')
+    print('  cost  =', round(cost, 4))
+    print('  theta =', round(theta))
+    print('  ratio =', round(ratio, 2))
+
+
+# ------------------- code principal -------------------------------
+
+readData("matelles-joints.txt", 0)
+readData("matelles-stylolites.txt", 1)
+
+monteCarlo(5000)

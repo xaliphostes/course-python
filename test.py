@@ -20,4 +20,3 @@ def printManyCosts(n: tuple[float, float]):
         S3 = [math.cos(a), math.sin(a)]
         print( angle, costJoint(n, S3), costStylolite(n, S3) )
 
-

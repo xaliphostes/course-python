@@ -12,7 +12,8 @@ def normalize(n):
         return [n[0] / l, n[1] / l]
     else:
         return n
-    
+
+
 def dot(n1, n2):
     return n1[0] * n2[0] + n1[1] * n2[1]
 
@@ -70,4 +71,16 @@ def plotRotateS3():
     # ---
     plt.show()
 
-plotRotateS3()
+
+def readData(filename):
+    f = open(filename, "r")
+    for line in f:
+        tokens = line.split(' ')  # c'est un tableau de str
+        nx = float(tokens[0])
+        ny = float(tokens[1])
+        print(nx, ny)
+
+
+readData("matelles-joints.txt")
+readData("matelles-stylolites.txt")
+

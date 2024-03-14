@@ -109,7 +109,6 @@ def plotDomain(data: list[Data], n: int):
 
 def plotRotateS3():
     x = []
-
     yj = []
     ys = []
 

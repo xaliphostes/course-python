@@ -6,12 +6,18 @@ Provide 3 ways of programming stress inversion using Python
 - [invert-3.py](invert-3.py): Object oriented programming (150-200 lines of code). Folder [inversion](inversion) contains the same classes, but split the code into multiple files, and introduces the notion of data factory.
 
 ## Installation
+To run Python, you have at least 3 possibilities:
+
 - [Spyder](https://www.spyder-ide.org)
 - [PyCharm IDE, Community Edition](https://www.jetbrains.com/pycharm/download/)
-- [Visual Studio Code](https://code.visualstudio.com/)
+- [Visual Studio Code](https://code.visualstudio.com/): you will need to install [Python](https://www.python.org) in parallel
 
 ## Running
 Directly from PyCharm/Spyder by selecting either [invert-1.py](invert-1.py), [invert-2.py](invert-2.py) or [invert-3.py](invert-3.py).
+
+From Visual Studio Code by using the integrated terminal and running:
+
+`python invert-1.py`
 
 ## Others folders
 1. In folder [others](./others/), you will find several scripts such as:

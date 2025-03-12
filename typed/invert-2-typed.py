@@ -9,7 +9,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Callable
 
-def normalize(n) :
+type Vector = list[float]
+type Stress = list[Vector]
+
+
+def normalize(n: Vector) -> Vector:
     l = math.sqrt(n[0] ** 2 + n[1] ** 2)
     if l != 0:
         return [n[0] / l, n[1] / l]
@@ -21,7 +25,7 @@ def deg2rad(a: float) -> float:
     return a * math.pi / 180
 
 
-def dot(n1, n2) -> float:
+def dot(n1: Vector, n2: Vector) -> float:
     return n1[0] * n2[0] + n1[1] * n2[1]
 
 
@@ -30,12 +34,18 @@ def lerp(v0: float, v1: float, t: float) -> float:
 
 
 class PrincipalDirections:
-    def __init__(self, S1, S3) -> None:
+    S1: Vector
+    S3: Vector
+
+    def __init__(self, S1: Vector, S3: Vector) -> None:
         self.S1, self.S3 = S1, S3
 
 
 class Data:
-    def __init__(self, n, cost: Callable) -> None:
+    cost: Callable
+    n: Vector
+
+    def __init__(self, n: Vector, cost: Callable) -> None:
         self.cost = cost
         self.n = n
 
@@ -52,11 +62,11 @@ def principalDirections(theta: float, k: float) -> PrincipalDirections:
     return PrincipalDirections(S1, S3)
 
 
-def costJoint(n, r: PrincipalDirections) -> float:
+def costJoint(n: Vector, r: PrincipalDirections) -> float:
     return 1.0 - math.fabs(dot(n, r.S3))
 
 
-def costStylo(n, r: PrincipalDirections) -> float:
+def costStylo(n: Vector, r: PrincipalDirections) -> float:
     return 1.0 - math.fabs(dot(n, r.S1))
 
 
@@ -155,4 +165,4 @@ addData("data/matelles-stylolites.txt", costStylo)
 mc(data, 10000)
 
 plotDomain(data, 50)
-# plotRotateS3()
+plotRotateS3()

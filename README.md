@@ -24,4 +24,6 @@ Directly from PyCharm/Spyder by selecting either [invert-1.py](invert-1.py), [in
 
 3. Folder [inversion](inversion) contains the same classes as in [invert-3.py](invert-3.py), but the code is splitted into multiple files, and we introduces the notion of data factory.
 
-4. Folder [js](./js/) provide three JavaScript version of the inversion procedure: on running with [node](https://nodejs.org/en) ([invert.js](./js/invert.js)), one with [deno](https://deno.com) ([invert.ts](./js/invert.ts)) and one that is running online ([index.html](./js/index.html))
+5. In folder [typed](./typed/) you will find the version of [invert-2.py](invert-2.py) and [invert-3.py](invert-3.py) using types.
+
+6. Folder [js](./js/) provide three JavaScript version of the inversion procedure: on running with [node](https://nodejs.org/en) ([invert.js](./js/invert.js)), one with [deno](https://deno.com) ([invert.ts](./js/invert.ts)) and one that is running online ([index.html](./js/index.html))

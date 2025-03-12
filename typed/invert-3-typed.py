@@ -12,7 +12,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from abc import abstractmethod
 
-def dot(n1, n2) -> float:
+type Vector = list[float]
+type Stress = list[Vector]
+
+
+def dot(n1: Vector, n2: Vector) -> float:
     return n1[0] * n2[0] + n1[1] * n2[1]
 
 
@@ -20,7 +24,7 @@ def lerp(v0: float, v1: float, t: float) -> float:
     return (1 - t) * v0 + t * v1
 
 
-def normalize(n) :
+def normalize(n: Vector) -> Vector:
     l = math.sqrt(n[0] ** 2 + n[1] ** 2)
     if l != 0:
         return [n[0] / l, n[1] / l]
@@ -32,12 +36,15 @@ def normalize(n) :
 
 
 class RemoteStress:
+    __S1: Vector
+    __S3: Vector
+
     @property
-    def S1(self) :
+    def S1(self) -> Vector:
         return self.__S1
 
     @property
-    def S3(self) :
+    def S3(self) -> Vector:
         return self.__S3
 
     def set(self, theta: float, k: float) -> None:
@@ -55,7 +62,9 @@ class RemoteStress:
 
 # Class de base (abstraite car ne fait rien)
 class Data:
-    def __init__(self, n) -> None: self.n = n
+    n: Vector
+
+    def __init__(self, n: Vector) -> None: self.n = n
 
     @abstractmethod
     def cost(self, r: RemoteStress) -> float: pass
@@ -181,7 +190,7 @@ def main():
 
     monteCarlo(data, 10000)
     plotDomain(data, 20)
-    # plotRotateS3()
+    plotRotateS3()
 
 
 # -------------------------------------------

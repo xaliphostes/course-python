@@ -1,52 +1,27 @@
 # Courses on stress inversion
 
-Provide 4 ways of programming stress inversion:
-- using JavaScript and procedural programming (~80 lines of code)
-- using Python, procedural programming and object oriented programming (150-200 lines of code)
-- using TypeScript, object oriented and procedural programming (~330 lines of code)
-- in the browser using `index.html`
-
-Folder `inversion` contains the same classes as in `invert-class.py`, but split the code into multiple files, and introduces the notion of data factory.
+Provide 3 ways of programming stress inversion using Python
+- [invert-1.py](invert-1.py): Beurk programming for small project
+- [invert-2.py](invert-2.py): Procedural programming
+- [invert-3.py](invert-3.py): Object oriented programming (150-200 lines of code). Folder [inversion](inversion) contains the same classes, but split the code into multiple files, and introduces the notion of data factory.
 
 ## Installation
-- [PyCharm IDE, Community Edition](https://www.jetbrains.com/pycharm/download/) for python
-- [node](https://nodejs.org/en) for JavaScript
-- [deno](https://deno.com/) for TypeScript
-- [Visual Studio Code](https://code.visualstudio.com/) (for JavaScript and TypeScript)
-
+- [Spyder](https://www.spyder-ide.org)
+- [PyCharm IDE, Community Edition](https://www.jetbrains.com/pycharm/download/)
+- [Visual Studio Code](https://code.visualstudio.com/)
 
 ## Running
-### In Python
-Directly from PyCharm by selecting either `invert-function.py` or `invert-class.py`.
+Directly from PyCharm/Spyder by selecting either [invert-1.py](invert-1.py), [invert-2.py](invert-2.py) or [invert-3.py](invert-3.py).
 
-### In JavaScript (using node)
-```sh
-node invert.js
-```
+## Others folders
+1. In folder [others](./others/), you will find several scripts such as:
+   - [normal-shear-stress](others/normal-shear-stress.py)
+   - [plot-costs](others/plot-costs.py)
+   - [plot-fct](others/plot-fct.py)
+   - [principal-directions](others/principal-directions.py)
 
-### In TypeScript (using deno).
-```sh
-deno run invert.ts
-```
-Deno will ask you the permission to read the two files from your folder, and will display:
-```
-⚠️  Deno requests read access to "matelles-joints.txt".
-├ Requested by `Deno.readFileSync()` API.
-├ Run again with --allow-read to bypass this prompt.
-└ Allow? [y/n/A] (y = yes, allow; n = no, deny; A = allow all read permissions) >
-```
-To bypass this prompt, prefer to use `--allow-read`:
-```sh
-deno run --allow-read invert.ts 
-```
+2. In folder [data](./data/), you will find the Matelles data (joints and stylolites). Each line represents the 2D normal to a fracture (joint or stylolite)
 
-## Running in the browser
-The index.html file embeds JavaScript code to represent the cost domain,
-including both the code and data from Les Matelles.
+3. Folder [inversion](inversion) contains the same classes as in [invert-3.py](invert-3.py), but the code is splitted into multiple files, and we introduces the notion of data factory.
 
----
-<center>
-Simply <a href="https://xaliphostes.github.io/course-stress-inv-3/"><b><b>click here</b></a></b> to display the cost domain.
-</center>
-
----
+4. Folder [js](./js/) provide three JavaScript version of the inversion procedure: on running with [node](https://nodejs.org/en) ([invert.js](./js/invert.js)), one with [deno](https://deno.com) ([invert.ts](./js/invert.ts)) and one that is running online ([index.html](./js/index.html))

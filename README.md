@@ -8,6 +8,7 @@ Provide 3 ways of programming stress inversion using Python
 ## Installation
 To run Python, you have at least 3 possibilities:
 
+- En [ligne](https://colab.research.google.com)
 - [Spyder](https://www.spyder-ide.org)
 - [PyCharm IDE, Community Edition](https://www.jetbrains.com/pycharm/download/)
 - [Visual Studio Code](https://code.visualstudio.com/): you will need to install [Python](https://www.python.org) in parallel

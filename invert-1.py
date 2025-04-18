@@ -25,28 +25,22 @@ def principalDirections(theta, k):
     xx, xy, yy = k * s * s, k * c * s, k * c * c
 
     # # A la mano
-    # trace = xx + yy
-    # discri = math.sqrt(trace * trace - 4 * (xx * yy - xy * xy))
-    # # Decreasing order according to the eigen values
-    # s1 = normalize([xy, (trace + discri) / 2 - xx])
-    # s3 = normalize([xy, (trace - discri) / 2 - xx])
-    # return [s1, s3]
+    trace = xx + yy
+    discri = math.sqrt(trace * trace - 4 * (xx * yy - xy * xy))
+    # Decreasing order according to the eigen values
+    s1 = normalize([xy, (trace + discri) / 2 - xx])
+    s3 = normalize([xy, (trace - discri) / 2 - xx])
+    return [s1, s3]
 
-    # Using numpy
-    tensor = np.array([[xx, xy], [xy, yy]])
-    eigenvalues, eigenvectors = np.linalg.eigh(tensor)
-    # idx = eigenvalues.argsort()[::-1]
-    # eigenvectors = eigenvectors[:, idx]
 
-    return eigenvectors
+
 
 
 def costJoint(n, r):
     return 1.0 - math.fabs(dot(n, r[1]))
 
-
 def costStylo(n, r):
-    return 1.0 - math.fabs(dot(n, r[0]))
+    return 1.0 - costJoint(n,r[1])
 
 
 allData = []

@@ -1,19 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from math import sin, cos, pi
 
-
-def fct(x):
-    return x * sin(x * pi / 180) + cos(2 * x * pi / 180)
+def fct(x): return x**4 - 2*x**2 - 5*x + 6
 
 x = []
 y = []
 
-for i in np.arange(0, 720, 0.1):
+for i in np.arange(-3, 3, 0.1):
     x.append(i)
     y.append(fct(i))
 
 fig, ax = plt.subplots()
-ax.plot(x, y, label='Joint')
+ax.plot(x, y)
 plt.show()
-
